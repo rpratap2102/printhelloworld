@@ -4,7 +4,7 @@ import {Link} from 'react-router-dom'
 import { UserContext } from '../App';
 
 function LoginPage() {
-const { user, setUser } = useContext(UserContext);
+const {  setUser } = useContext(UserContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -23,8 +23,6 @@ const { user, setUser } = useContext(UserContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(username)
-    alert(password)
     const response = await fetch(`http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`, {
       method: 'GET',
       headers: {

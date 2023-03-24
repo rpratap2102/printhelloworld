@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Bar } from 'react-chartjs-2';
 function ChatPage() {
   const [messages, setMessages] = useState([
     { id: 1, sender: 'bot', text: 'Hi there! How can I assist you today?' },
@@ -11,21 +10,7 @@ function ChatPage() {
     setNewMessage(event.target.value);
   };
 
-  const getMessageCountBySender = () => {
-    const userMessageCount = messages.filter((message) => message.sender === 'user').length;
-    const botMessageCount = messages.filter((message) => message.sender === 'bot').length;
-    return [100, 200];
-  };
-  const chartData = {
-    labels: ['User', 'Bot'],
-    datasets: [
-      {
-        label: 'Message Count',
-        data: [100,120],
-        backgroundColor: ['#007bff', '#6c757d'],
-      },
-    ],
-  };
+  
   const handleSendMessage = (event) => {
     event.preventDefault();
     if (newMessage.trim() === '') {

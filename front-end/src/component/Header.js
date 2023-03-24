@@ -2,7 +2,7 @@ import { Button } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import {Link} from 'react-router-dom'
-import React, { useContext ,useState} from 'react';
+import React, { useContext} from 'react';
 import { UserContext } from '../App';
 
 function Header() {
