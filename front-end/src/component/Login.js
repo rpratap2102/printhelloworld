@@ -23,7 +23,9 @@ const { user, setUser } = useContext(UserContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await fetch("http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}", {
+    console.log(username)
+    alert(password)
+    const response = await fetch(`http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

@@ -17,7 +17,7 @@ function RegisterForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
   
-    const response = await fetch("http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}", {
+    const response = await fetch(`http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
