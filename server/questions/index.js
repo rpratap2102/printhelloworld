@@ -16,16 +16,15 @@ module.exports = async function (context, req) {
   let statCode = 200;
   if (req.method == "GET") {
     try {
+
       let querySpec = {
-        query: `SELECT * from questions q WHERE q.index =${req.query.index}`,
+        query: `SELECT * from questions q ${req.query.index != undefined? `WHERE q.index =${req.query.index}` : ''}`,
       };
       const { resources: items } = await container.items
         .query(querySpec)
         .fetchAll();
-      context.log(querySpec.query)
-      let _obj = items[0];
-      context.log(_obj);
-      responseData = _obj;
+      responseData = items;
+
     } catch (error) {
       statCode = 500;
     }
