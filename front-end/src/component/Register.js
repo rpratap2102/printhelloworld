@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { UserContext } from "../App";
+import { redirect } from "react-router-dom";
 import { Form, Button, Container } from "react-bootstrap";
 import { CheckCircleOutlined } from "@ant-design/icons";
 
 function RegisterForm() {
+  const { user, setUser } = useContext(UserContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -28,6 +31,27 @@ function RegisterForm() {
     );
 
     if (response.ok) {
+      const res = await fetch(
+        `https://printhelloworldback.azurewebsites.net/api/status?u=${username}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        let body = await res.json();
+        setUser({
+          name: username,
+          progress: body.progress,
+          question: body.q_index,
+        });
+      } else {
+        setUser({ name: username, progress: [], question: 0 });
+      }
+      redirect("/");
       console.log("User registered successfully!");
     } else {
       console.error("Error registering user");
