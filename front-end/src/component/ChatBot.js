@@ -264,15 +264,20 @@ function ChatPage() {
     console.log(messages);
     setBotResponse(botRes);
     const predict = {
-      lable: chatResponse["prediction"]["label"],
+      label: chatResponse["prediction"]["label"],
       score: chatResponse["prediction"]["score"],
     };
 
-    if (NegativeFollowUpResponse.includes(predict.lable)) {
+    if (NegativeFollowUpResponse.includes(predict.label)) {
+      console.log("negative  ");
+      console.log(predict.label);
       setNegative(negative + 5);
     } else {
+      console.log("positive  ");
+      console.log(predict.label);
       setPositive(positive + 5);
     }
+    setMessage("");
   };
   return (
     <div className="container-fluid mt-5">
@@ -342,7 +347,7 @@ function ChatPage() {
         <div className="col-md-3 bg-light pt-3 mt-5">
           <center>
             <h3 className="mb-3 text-danger">Previous Progress</h3>
-            <div className="row mb-5">
+            {/* <div className="row mb-5">
               <div className="row">
                 <div className="col-1 ">
                   <SmileOutlined
@@ -366,12 +371,12 @@ function ChatPage() {
                 <div className="col">
                   <ProgressBar
                     variant="success"
-                    now={CalculateUserPreviousPositive()}
+                    now={CalculateUserPreviousPositive() + positive}
                   />
                 </div>
                 <h6 className="text-danger">sad</h6>
               </div>
-            </div>
+            </div> */}
             <hr />
             <h3 className="mb-3 text-success mt-5">Current Progress</h3>
             <div className="row mb-5">
@@ -384,10 +389,10 @@ function ChatPage() {
                 <div className="col">
                   <ProgressBar
                     variant="success"
-                    now={CalculateUserPreviousNegative()}
+                    now={CalculateUserPreviousNegative() + negative}
                   />
                 </div>
-                <h6 className="text-success">happy</h6>
+                <h6 className="text-success">Negative Sentiments</h6>
               </div>
               <div className="row mt-5">
                 <div className="col-1 ">
@@ -398,10 +403,10 @@ function ChatPage() {
                 <div className="col">
                   <ProgressBar
                     variant="success"
-                    now={CalculateUserPreviousPositive()}
+                    now={CalculateUserPreviousPositive() + positive}
                   />
                 </div>
-                <h6 className="text-success">sad</h6>
+                <h6 className="text-success">Positive Sentiments</h6>
               </div>
             </div>
           </center>
