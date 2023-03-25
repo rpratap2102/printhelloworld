@@ -57,6 +57,7 @@ module.exports = async function (context, req) {
         : await container.items.create(data);
       responseData = {
         message: `Record updated for  ${data.userName}`,
+        data: createItem
       };
       statCode = 201;
     } catch (error) {
