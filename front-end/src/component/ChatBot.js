@@ -19,7 +19,7 @@ function ChatPage() {
       ]);
     } else {
       fetch(
-        `http://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
+        `https://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
         {
           method: "GET",
           headers: {

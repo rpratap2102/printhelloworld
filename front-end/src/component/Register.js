@@ -17,7 +17,7 @@ function RegisterForm() {
     event.preventDefault();
 
     const response = await fetch(
-      `http://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`,
+      `https://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`,
       {
         method: "POST",
         headers: {
