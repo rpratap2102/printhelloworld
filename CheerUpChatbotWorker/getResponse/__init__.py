@@ -101,31 +101,37 @@ def check_all_messages(message, predicted, question_index):
     response('You\'re welcome!', ['thank', 'thanks'], single_response=True)
     
     best_match = max(highest_prob_list, key=highest_prob_list.get)
+    body ={
+        "res": '',
+        "sentiment": '',
+        "question": '',
+        'followup':'',
+        'action':''
+    }
     
     
     if question_index >= len(questions):
-        res = byeResponse
-        return res
+        body['res'] = byeResponse
+        return body
     if question_index == 0:
-        res = best_match
-        return res +'\n' +questions[question_index]['question']
+        body['res'] = best_match
+        body['question'] = "Lets get started with your name then."
+        return body
     
     if highest_prob_list[best_match] < 1 :
-        print(message)
-        print("index",question_index)
-        
         if len(message) != 0 and question_index > 0:
-            print(predicted)
             if predicted in PositiveFollowUpResponse:
-                res = questions[question_index-1]['positive']['followup']
-                res += '\n'+ questions[question_index-1]['positive']['action']
-                return res + '\n' + questions[question_index]['question']
+                body['followup'] = questions[question_index-1]['positive']['followup']
+                body['action'] =  questions[question_index-1]['positive']['action']
+                body['question'] =  questions[question_index]['question']
             else:
-                res = questions[question_index-1]['negative']['followup']
-                res += '\n'+ questions[question_index-1]['negative']['action']
-                return res + '\n' + questions[question_index]['question']
+                body['followup'] = questions[question_index-1]['negative']['followup']
+                body['action'] = questions[question_index-1]['negative']['action']
+                body['question'] =  questions[question_index]['question']
+            return body
     else :
-        return best_match
+        body['res'] = best_match
+        return body
     return unknown()
 
 # update the progress of user
