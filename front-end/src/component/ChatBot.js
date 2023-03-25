@@ -4,6 +4,7 @@ import { UserContext } from "../App";
 import { redirect } from "react-router-dom";
 import { GetUsersQuestions, GetBotResponse } from "../services/CheerBotService";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
 
 function ChatPage() {
   const NegativeFollowUpResponse = [
@@ -216,7 +217,11 @@ function ChatPage() {
             <h3 className="mb-3 text-danger">Previous Progress</h3>
             <div className="row mb-5">
               <div className="row">
-                <div className="col-1 ">h2</div>
+                <div className="col-1 ">
+                  <SmileOutlined
+                    style={{ color: "#d63384", fontSize: "1.2em" }}
+                  />
+                </div>
                 <div className="col">
                   <ProgressBar
                     variant="success"
@@ -226,7 +231,11 @@ function ChatPage() {
                 <h6 className="text-danger">happy</h6>
               </div>
               <div className="row mt-5">
-                <div className="col-1 ">h2</div>
+                <div className="col-1 ">
+                  <FrownOutlined
+                    style={{ color: "#d63384", fontSize: "1.2em" }}
+                  />
+                </div>
                 <div className="col">
                   <ProgressBar
                     variant="success"
@@ -240,14 +249,22 @@ function ChatPage() {
             <h3 className="mb-3 text-success mt-5">Current Progress</h3>
             <div className="row mb-5">
               <div className="row">
-                <div className="col-1 ">h2</div>
+                <div className="col-1 ">
+                  <SmileOutlined
+                    style={{ color: "#198754", fontSize: "1.2em" }}
+                  />
+                </div>
                 <div className="col">
                   <ProgressBar variant="success" now={positive} />
                 </div>
                 <h6 className="text-success">happy</h6>
               </div>
               <div className="row mt-5">
-                <div className="col-1 ">h2</div>
+                <div className="col-1 ">
+                  <FrownOutlined
+                    style={{ color: "#198754", fontSize: "1.2em" }}
+                  />
+                </div>
                 <div className="col">
                   <ProgressBar variant="success" now={negative} />
                 </div>
