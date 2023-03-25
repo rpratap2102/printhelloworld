@@ -1,4 +1,7 @@
-export function GetBotResponse(username, message) {
+import axios from "axios";
+
+export async function GetBotResponse(username, message) {
+  console.log(username);
   let chatBotReply = {
     res: "",
     sentiment: "",
@@ -11,7 +14,7 @@ export function GetBotResponse(username, message) {
     },
   };
 
-  fetch(
+  const res = await fetch(
     `https://cheerupchatbot.azurewebsites.net/api/getresponse?u=${username}`,
     {
       method: "POST",
@@ -22,36 +25,34 @@ export function GetBotResponse(username, message) {
         text: message,
       }),
     }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      chatBotReply["res"] = data["body"]["res"];
-      chatBotReply["sentiment"] = data["body"]["sentiment"];
-      chatBotReply["question"] = data["body"]["question"];
-      chatBotReply["followup"] = data["body"]["followup"];
-      chatBotReply["action"] = data["body"]["action"];
-      chatBotReply["prediction"]["label"] = data["body"]["prediction"]["label"];
-      chatBotReply["prediction"]["score"] = data["body"]["prediction"]["score"];
-    })
-    .catch((error) => console.error(error));
+  );
+  let data = await res.json();
+  console.log(data);
+  if (res.status == 200) {
+    chatBotReply["res"] = data["body"]["res"];
+    chatBotReply["sentiment"] = data["body"]["sentiment"];
+    chatBotReply["question"] = data["body"]["question"];
+    chatBotReply["followup"] = data["body"]["followup"];
+    chatBotReply["action"] = data["body"]["action"];
+    chatBotReply["prediction"]["label"] = data["prediction"]["label"];
+    chatBotReply["prediction"]["score"] = data["prediction"]["score"];
+  }
 
   return chatBotReply;
 }
 
-export function GetUsersQuestions(user) {
-  let userQuestion = {};
-
-  fetch(
-    `https://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => (userQuestion["question"] = data[0]["question"]));
-
-  return userQuestion;
+export async function GetUsersQuestions(question_index) {
+  console.log("hellp");
+  //   return fetch(
+  //     `https://printhelloworldback.azurewebsites.net/api/questions?index=${question_index}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   ).then((response) => response.json());
+  return await axios.get(
+    `https://printhelloworldback.azurewebsites.net/api/questions?index=${question_index}`
+  );
 }

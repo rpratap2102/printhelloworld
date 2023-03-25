@@ -1,14 +1,23 @@
 import { useState, useEffect } from "react";
 import React, { useContext } from "react";
 import { UserContext } from "../App";
+import { redirect } from "react-router-dom";
+import { GetUsersQuestions, GetBotResponse } from "../services/CheerBotService";
 
 function ChatPage() {
   const { user } = useContext(UserContext);
   const [data, setData] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [botResponse, setBotResponse] = useState({});
+
   useEffect(() => {
     console.log("effect useEffect");
     console.log(user);
+    if (!user) {
+      return redirect("/login");
+    }
+
     if (user.question === 0) {
       setMessages([
         {
@@ -18,85 +27,117 @@ function ChatPage() {
         },
       ]);
     } else {
-      fetch(
-        `https://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
+      (async () => {
+        console.log("hello");
+        const res = await GetUsersQuestions(user.question);
+        const question = res.data[0].question;
+
+        const msgs = [
+          {
+            id: 1,
+            sender: "bot",
+            text: question,
+            followup: "",
+            action: "",
           },
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setMessages([
-            {
-              id: 1,
-              sender: "bot",
-              text: data[0]["question"],
-            },
-            {
-              id: 2,
-              sender: "user",
-              text: user.progress.slice(-1)[0].response,
-            },
-            {
-              id: 3,
-              sender: "bot",
-              text: "Lets continue where we left off!!",
-            },
-          ]);
-        });
-      //TODO generate bot response ask next questions
+          {
+            id: 2,
+            sender: "user",
+            text: user.progress.slice(-1)[0].response,
+          },
+          {
+            id: 3,
+            sender: "bot",
+            text: "Lets continue where we left off!! - question need to be added",
+            followup: "",
+            action: "",
+          },
+        ];
+        setMessages(msgs);
+      })();
     }
   }, [user]);
-  const [newMessage, setNewMessage] = useState("");
+
+  // } else {
+  //   fetch(
+  //     `https://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   )
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       setMessages([
+  //         {
+  //           id: 1,
+  //           sender: "bot",
+  //           text: data[0]["question"],
+  //         },
+  //         {
+  //           id: 2,
+  //           sender: "user",
+  //           text: user.progress.slice(-1)[0].response,
+  //         },
+  //         {
+  //           id: 3,
+  //           sender: "bot",
+  //           text: "Lets continue where we left off!!",
+  //         },
+  //       ]);
+  //     });
+  //TODO generate bot response ask next questions
+  //}
+  //});
 
   const handleNewMessageChange = (event) => {
-    setNewMessage(event.target.value);
+    setMessage(event.target.value);
   };
 
-  const handleSendMessage = (event) => {
+  const handleSendMessage = async (event) => {
     event.preventDefault();
-    if (newMessage.trim() === "") {
+    if (message.trim() === "") {
       return;
     }
     const newId = messages.length + 1;
-    const newMessages = [
-      ...messages,
-      { id: newId, sender: "user", text: newMessage },
-    ];
-    setMessages(newMessages);
-    setNewMessage("");
-    const botResponse = generateBotResponse(newMessage);
-    setTimeout(() => {
-      setMessages([
-        ...newMessages,
-        { id: newId + 1, sender: "bot", text: botResponse },
-      ]);
-    }, 500);
+    let msgs = [...messages, { id: newId, sender: "user", text: message }];
+
+    setMessages(msgs);
+    const chatResponse = await GetBotResponse(user.name, message);
+    console.log(chatResponse);
+    const botRes = {
+      id: newId + 1,
+      sender: "bot",
+      text: chatResponse.res,
+      question: chatResponse.question,
+      followup: chatResponse.followup,
+      action: chatResponse.action,
+    };
+    console.log(botRes);
+    setBotResponse(botRes);
   };
 
-  const generateBotResponse = (message) => {
+  console.log(botResponse);
+  // const generateBotResponse = (message) => {
 
-    const res =  fetch(`https://cheerupchatbot.azurewebsites.net/api/getresponse?u=${user.name}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "text":message
-      })
-    }).then(response => response.json())
-    .then(data => setData(data))
-    .catch(error => console.error(error));
-    
-    console.log(data.body)
-    console.log(data)
-    return data.body
-  };
+  //   const res =  fetch(`https://cheerupchatbot.azurewebsites.net/api/getresponse?u=${user.name}`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({
+  //       "text":message
+  //     })
+  //   }).then(response => response.json())
+  //   .then(data => setData(data))
+  //   .catch(error => console.error(error));
 
-
+  //   console.log(data.body)
+  //   console.log(data)
+  //   return data.body
+  // };
   return (
     <div className="container-fluid">
       <div className="row">
@@ -122,6 +163,25 @@ function ChatPage() {
                   </div>
                 </div>
               ))}
+              {botResponse && (
+                <>
+                  {botResponse["followup"] != "" && (
+                    <div className="card">
+                      <div className="card-body">{botResponse["followup"]}</div>
+                    </div>
+                  )}
+                  {botResponse["action"] != "" && (
+                    <div className="card">
+                      <div className="card-body">{botResponse["action"]}</div>
+                    </div>
+                  )}
+                  {botResponse["question"] != "" && (
+                    <div className="card">
+                      <div className="card-body">{botResponse["question"]}</div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
           <form className="mt-4" onSubmit={handleSendMessage}>
@@ -130,7 +190,7 @@ function ChatPage() {
                 type="text"
                 className="form-control"
                 placeholder="Type your message"
-                value={newMessage}
+                value={message}
                 onChange={handleNewMessageChange}
               />
             </div>
