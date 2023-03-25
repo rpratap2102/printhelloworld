@@ -43,10 +43,18 @@ function LoginPage() {
             },
           }
         );
-        let body = await res.json();
-        setUser({name: username, progress: body.progress, question: body.q_index});
+        
+        if (res.status === 200) {
+          let body = await res.json();
+          setUser({
+            name: username,
+            progress: body.progress,
+            question: body.q_index,
+          });
+        } else {
+          setUser({ name: username, progress: [], question: 0 });
+        }
         console.log("Login successfully!");
-        console.log(user);
         break;
       case 401:
         setPassword("");
@@ -95,7 +103,7 @@ function LoginPage() {
         </Button>
 
         <p className="text-blue-600">
-          <Link to="/register" smooth={true} offset={-100} duration={500}>
+          <Link to="/register" smooth="true" offset={-100} duration={500}>
             Create Account
           </Link>
         </p>

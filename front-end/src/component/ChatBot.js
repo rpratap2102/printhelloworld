@@ -1,13 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React, { useContext } from "react";
 import { UserContext } from "../App";
 
 function ChatPage() {
   const { user } = useContext(UserContext);
-  const [messages, setMessages] = useState([
-    { id: 1, sender: "bot", text: "Hi there! How can I assist you today?" },
-  ]);
-
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    console.log("effect useEffect");
+    console.log(user);
+    if (user.question === 0) {
+      setMessages([
+        {
+          id: 1,
+          sender: "bot",
+          text: "Hi there,\nI’m hello world bot, a personalized chatbot curated to understand human emotions and cheer them up. I am here to listen and would try to make you feel better.\n In case, you want a friendly talk and want to laugh out loud, I can share some of my favorite memes and jokes.",
+        },
+      ]);
+    } else {
+      fetch(
+        `http://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setMessages([
+            {
+              id: 1,
+              sender: "bot",
+              text: data[0]["question"],
+            },
+            {
+              id: 2,
+              sender: "user",
+              text: user.progress.slice(-1)[0].response,
+            },
+            {
+              id: 3,
+              sender: "bot",
+              text: "Lets continue where we left off!!",
+            },
+          ]);
+        });
+      //TODO generate bot response ask next questions
+    }
+  }, [user]);
   const [newMessage, setNewMessage] = useState("");
 
   const handleNewMessageChange = (event) => {
@@ -90,7 +131,9 @@ function ChatPage() {
           </form>
         </div>
         <div className="col-md-3 bg-light pt-3">
-          <h3 className="mb-3">Chat Statistics</h3>
+          <center>
+            <h3 className="mb-3">Emotions History</h3>
+          </center>
         </div>
       </div>
     </div>

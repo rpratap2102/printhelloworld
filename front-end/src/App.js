@@ -19,9 +19,12 @@ function App() {
             <Route
               exact
               path="/"
-              element={user ? <ChatBot /> : <Navigate to="/login" />}
+              element={user.name ? <ChatBot /> : <Navigate to="/login" />}
             />
-            <Route path="/login" element={user ? <ChatBot /> : <Login />} />
+            <Route
+              path="/login"
+              element={user.name ? <ChatBot /> : <Login />}
+            />
             <Route path="/register" element={<Register />} />
           </Routes>
         </div>
