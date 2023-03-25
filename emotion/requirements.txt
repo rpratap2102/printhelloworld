@@ -1,8 +1,8 @@
 # DO NOT include azure-functions-worker in this file
-# The Python Worker is managed by Azure Functions platform
+# The Python Worker is managed by azure Functions platform
 # Manually managing azure-functions-worker may cause unexpected issues
 
 azure-functions
-tensorflow
+#tensorflow
 transformers
 protobuf==4.21

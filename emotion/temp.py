@@ -20,7 +20,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     emotion_labels = emotion(text)
     print(emotion_labels)
     if text:
-        return func.HttpResponse(f"Text: {text}, \nEmotion, {emotion_labels}")
+        return func.HttpResponse(f"Text: {text}, \nEmotion, {emotion_labels[0]['label']}")
     else:
         return func.HttpResponse(
             "This HTTP triggered function executed successfully. Pass a text in the request body for emotion.",

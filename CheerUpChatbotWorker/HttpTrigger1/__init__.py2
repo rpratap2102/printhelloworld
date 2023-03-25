@@ -1,5 +1,5 @@
 import logging
-import json
+
 
 import azure.functions as func
 
@@ -20,9 +20,12 @@ def getting_questions():
     else:
         print(f"Hello person, there's a {response.status_code} error with your request")
 
-NegativeFollowUpResponse = {'sadness','annoyance','disappointment','fear','disapproval','disgust','anger','embarrassment','grief','remorse','realization','nervousness','confusion','neutral'}
-PositiveFollowUpResponse = {'approval','caring','amusement','curiosity','optimism','desire','admiration','relief','joy','excitement','gratitude','love','surprise','pride'}
+NegativeFollowUpResponse = {'sadness', 'fear', 'anger', 'disapointed', 'Frustrated'}
+PositiveFollowUpResponse = {'joy', 'love', 'happy','excited', 'surprise' }
+question_index =0
 questions = getting_questions()
+print("que",questions)
+logging.info(questions)
 
 questions_texts = set()
 for question in questions:
@@ -35,7 +38,10 @@ def unknown():
                 "Sounds about right.",
                 "What does that mean?"][
         random.randrange(4)]
-    return response   
+    return response
+
+
+            
 
 def message_probability(user_message, recognised_words, single_response=False, required_words=[]):
     message_certainty = 0
@@ -64,25 +70,21 @@ def message_probability(user_message, recognised_words, single_response=False, r
         return int(percentage * 100)
     else:
         return 0
-
 def check_message_belongs_to_questions(msg):
     msg = msg.replace("?","")
     if msg in questions_texts:
         return True
     return False
-   
-def response_prediction(message): 
-    r= requests.post("https://api-inference.huggingface.co/models/arpanghoshal/EmoRoBERTa", data={'inputs':message},headers={'Authorization':"Bearer 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"})
-    logging.info(f'predict emotion {message}')
-    if r.status_code == 200:
-        logging.info(r.status_code)
-        body = r.json() 
-        logging.info(body[0][0])
-        return{"body": body[0][0], 'success': True}
-    else :
-        return {"success": False , 'message': f"Unable to predict the emotion {r.status_code}"}
+    
+def response_prediction(message):
+    msg = " "
+    msg=msg.join(message)  
 
-def check_all_messages(message, predicted, question_index):
+    
+    emotionArr=emotion(msg)
+    return emotionArr[0]['label']
+
+def check_all_messages(message):
     highest_prob_list = {}
     global NegativeFollowUpResponse, PositiveFollowUpResponse, questions
     
@@ -106,8 +108,9 @@ def check_all_messages(message, predicted, question_index):
         print(message)
         print("index",question_index)
         
+        
         if len(message) != 0 and question_index > 0:
-            print(predicted)
+            predicted = response_prediction(message)
             if predicted in PositiveFollowUpResponse:
                 res = questions[question_index-1]['positive']['followup']
                 res += '\n'+ questions[question_index-1]['positive']['action']
@@ -119,74 +122,44 @@ def check_all_messages(message, predicted, question_index):
     else :
         return best_match
     return unknown()
-
-# update the progress of user
-def setting_progress(userName, input, emotion, index):
-    path = f"https://printhelloworldback.azurewebsites.net/api/status?u={userName}"
-    logging.info({"qi":index,"r":input,"e":emotion})
-    response = requests.post(path, json={"qi":index,"r":input,"e":emotion})
-    if response.status_code == 201:
-        logging.info(f"Successfully updated progress")
-        body = response.json()
-        res = {'data': body, 'code' : 200 }
-        return res
-    else:
-        res = {'code' : response.status_code, 'message': 'unable to update the progress' }
-        logging.info(f"Hello person, there's a {response.status_code} error with your request")
-        return res
-
-# get the progress of user
-def getting_progress(userName):
-    path = f"https://printhelloworldback.azurewebsites.net/api/status?u={userName}"
-    response = requests.get(path)
-    if response.status_code == 200:
-        logging.info(f"Successfully fetched progress")
-        body = response.json()
-        res = {'data': body,'code': response.status_code}
-        return res
-    elif response.status_code == 204:
-        logging.info("Record is not created")
-        return {'code': 204}
-    else:
-        logging.info(f"Hello person, there's a {response.status_code} error with your request")
-        return {'code': response.status_code}
-
 # Used to get the response
-def get_response(user_input, userName):
+def get_response(user_input):
+    global question_index
     split_message = re.split(r'\s+|[,;?!.-]\s*', user_input.lower())
-    prediction = response_prediction(user_input)
-    if (prediction['success'] == False):
-        return {'success': False, 'message': prediction['message']}
-    logging.info(f"Prediction: {prediction}")
-    progress = getting_progress(userName);
-    index = 0
-    if progress['code'] == 200 :
-        index = progress['data']['q_index']
-    elif progress['code'] == 204 :
-        index = 0
-    else:
-        return {'success': False, 'message': 'unable to fetch progress'}
-    index = index + 1
-    logging.info(f"un : {userName}, ui : {user_input}, p : {prediction}, i : {index}")
-    update = setting_progress(userName, user_input, prediction['body'], index)
-    if update['code'] != 200:
-        return {'success': False, 'message': 'unable to update progress'}
-    body = check_all_messages(split_message, prediction['body']['label'], index - 1 )
-    response = {'body': body, 'prediction': prediction['body'], 'index': index, 'success': True }
+    response = check_all_messages(split_message)
+    question_index+= 1
+    # if not check_message_belongs_to_questions(user_input.lower()):
+    #     split_message = re.split(r'\s+|[,;?!.-]\s*', user_input.lower())
+    #     response = check_all_messages(split_message)
+    # else:
+    #     response = check_all_messages(user_input.lower())
+    #     question_index+= 1
     return response
 
+
+
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    userName = req.params.get('u')
-    if userName:
-        r = req.get_json()
-        res = get_response(r['text'], userName)
-        print(res)
-        if res['success'] == True :
-            return func.HttpResponse(json.dumps(res))
+    logging.info('Python HTTP trigger function processed a request.')
+
+    name = req.params.get('name')
+   
+    print(name)
+    if not name:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
         else:
-            return func.HttpResponse(f"Internal error : {res['message']}")
+            name = req_body.get('name')
+
+    if name:
+        r = req.get_json()
+        print(r)
+        res = get_response(r['text'])
+        print(res)
+        return func.HttpResponse(res)
     else:
         return func.HttpResponse(
-             "No userName is provided",
-             status_code=400
+             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
+             status_code=200
         )
