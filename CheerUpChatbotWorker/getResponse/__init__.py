@@ -72,13 +72,16 @@ def check_message_belongs_to_questions(msg):
     return False
    
 def response_prediction(message): 
-    r= requests.post("https://api-inference.huggingface.co/models/arpanghoshal/EmoRoBERTa", data={'inputs':message},headers={'Authorization':"Bearer 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"})
+    r= requests.post("https://api-inference.huggingface.co/models/arpanghoshal/EmoRoBERTa", json={'inputs':message},headers={'Authorization':"Bearer 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"})
     logging.info(f'predict emotion {message}')
     if r.status_code == 200:
         logging.info(r.status_code)
         body = r.json() 
-        logging.info(body[0][0])
-        return{"body": body[0][0], 'success': True}
+        pred = body[0][0]
+        if(pred['label'] == 'neutral'):
+            pred = body[0][1]
+        logging.info(pred)
+        return{"body": pred, 'success': True}
     else :
         return {"success": False , 'message': f"Unable to predict the emotion {r.status_code}"}
 
@@ -90,17 +93,22 @@ def check_all_messages(message, predicted, question_index):
         nonlocal highest_prob_list
         highest_prob_list[bot_response] = message_probability(message, list_of_words, single_response, required_words)
 
+    byeResponse = 'See you Again! I am hoping I was able to make your day cheerfull. Thankyou! '
     # Responses -------------------------------------------------------------------------------------------------------
     response('Hello!', ['hello', 'hi', 'hey', 'sup', 'heyo'], single_response=True)
-    response('See you Again! I am hoping I am helpful to make your day cheerfull. Thankyou! ', 
+    response(byeResponse, 
              ['bye', 'goodbye', 'nice talking to you'], single_response=True)
     response('You\'re welcome!', ['thank', 'thanks'], single_response=True)
     
     best_match = max(highest_prob_list, key=highest_prob_list.get)
-      
+    
+    
+    if question_index >= len(questions):
+        res = byeResponse
+        return res
     if question_index == 0:
-            res = best_match
-            return res +'\n' +questions[question_index]['question']
+        res = best_match
+        return res +'\n' +questions[question_index]['question']
     
     if highest_prob_list[best_match] < 1 :
         print(message)
@@ -151,6 +159,8 @@ def getting_progress(userName):
         logging.info(f"Hello person, there's a {response.status_code} error with your request")
         return {'code': response.status_code}
 
+#welcomeText = "Hi, I’m hello world bot, a personalized chatbot curated to understand human emotions and cheer them up. I am here to listen and would try to make you feel better.\n In case, you want a friendly talk and want to laugh out loud, I can share some of my favorite memes and jokes."
+
 # Used to get the response
 def get_response(user_input, userName):
     split_message = re.split(r'\s+|[,;?!.-]\s*', user_input.lower())
@@ -163,14 +173,19 @@ def get_response(user_input, userName):
     if progress['code'] == 200 :
         index = progress['data']['q_index']
     elif progress['code'] == 204 :
-        index = 0
+        update = setting_progress(userName, user_input, prediction['body'], index)
+        if update['code'] != 200:
+            return {'success': False, 'message': 'unable to update progress'}
+        response = {'body': 'Lets get started with your name then.', 'prediction': prediction['body'], 'index': index, 'success': True }
+        return response
     else:
-        return {'success': False, 'message': 'unable to fetch progress'}
+        return {'success': False, 'message': 'unable to fetch progress'} 
     index = index + 1
     logging.info(f"un : {userName}, ui : {user_input}, p : {prediction}, i : {index}")
-    update = setting_progress(userName, user_input, prediction['body'], index)
-    if update['code'] != 200:
-        return {'success': False, 'message': 'unable to update progress'}
+    if index < len(questions):
+        update = setting_progress(userName, user_input, prediction['body'], index)
+        if update['code'] != 200:
+            return {'success': False, 'message': 'unable to update progress'}
     body = check_all_messages(split_message, prediction['body']['label'], index - 1 )
     response = {'body': body, 'prediction': prediction['body'], 'index': index, 'success': True }
     return response
