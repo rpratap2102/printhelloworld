@@ -3,11 +3,41 @@ import React, { useContext } from "react";
 import { UserContext } from "../App";
 import { redirect } from "react-router-dom";
 import { GetUsersQuestions, GetBotResponse } from "../services/CheerBotService";
-import ProgressBar from 'react-bootstrap/ProgressBar';
+import ProgressBar from "react-bootstrap/ProgressBar";
 
 function ChatPage() {
-  const NegativeFollowUpResponse = ['sadness','annoyance','disappointment','fear','disapproval','disgust','anger','embarrassment','grief','remorse','realization','nervousness','confusion','neutral']
-  const PositiveFollowUpResponse = ['approval','caring','amusement','curiosity','optimism','desire','admiration','relief','joy','excitement','gratitude','love','surprise','pride']
+  const NegativeFollowUpResponse = [
+    "sadness",
+    "annoyance",
+    "disappointment",
+    "fear",
+    "disapproval",
+    "disgust",
+    "anger",
+    "embarrassment",
+    "grief",
+    "remorse",
+    "realization",
+    "nervousness",
+    "confusion",
+    "neutral",
+  ];
+  const PositiveFollowUpResponse = [
+    "approval",
+    "caring",
+    "amusement",
+    "curiosity",
+    "optimism",
+    "desire",
+    "admiration",
+    "relief",
+    "joy",
+    "excitement",
+    "gratitude",
+    "love",
+    "surprise",
+    "pride",
+  ];
   const { user } = useContext(UserContext);
   const [data, setData] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -15,7 +45,6 @@ function ChatPage() {
   const [botResponse, setBotResponse] = useState({});
   const [negative, setNegative] = useState(0);
   const [positive, setPositive] = useState(0);
-  const [prediction,setPrediction] =useState({})
 
   useEffect(() => {
     console.log("effect useEffect");
@@ -62,48 +91,31 @@ function ChatPage() {
         setMessages(msgs);
       })();
     }
-    
   }, [user]);
 
-  // } else {
-  //   fetch(
-  //     `https://printhelloworldback.azurewebsites.net/api/questions?index=${user.question}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     }
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setMessages([
-  //         {
-  //           id: 1,
-  //           sender: "bot",
-  //           text: data[0]["question"],
-  //         },
-  //         {
-  //           id: 2,
-  //           sender: "user",
-  //           text: user.progress.slice(-1)[0].response,
-  //         },
-  //         {
-  //           id: 3,
-  //           sender: "bot",
-  //           text: "Lets continue where we left off!!",
-  //         },
-  //       ]);
-  //     });
-  //TODO generate bot response ask next questions
-  //}
-  //});
+  const CalculateUserPreviousNegative = () => {
+    let prevNegative = 0;
+    user.progress.forEach((element) => {
+      if (NegativeFollowUpResponse.includes(element.emotion.label)) {
+        prevNegative += 5;
+      }
+    });
+    return prevNegative;
+  };
+
+  const CalculateUserPreviousPositive = () => {
+    let prevPositive = 0;
+    user.progress.forEach((element) => {
+      if (NegativeFollowUpResponse.includes(element.emotion.label)) {
+        prevPositive += 5;
+      }
+    });
+    return prevPositive;
+  };
 
   const handleNewMessageChange = (event) => {
     setMessage(event.target.value);
   };
-
-  
 
   const handleSendMessage = async (event) => {
     event.preventDefault();
@@ -115,6 +127,7 @@ function ChatPage() {
 
     setMessages(msgs);
     const chatResponse = await GetBotResponse(user.name, message);
+    Promise.resolve(chatResponse);
     console.log(chatResponse);
     const botRes = {
       id: newId + 1,
@@ -124,42 +137,24 @@ function ChatPage() {
       followup: chatResponse.followup,
       action: chatResponse.action,
     };
-    console.log(botRes);
+
     setBotResponse(botRes);
-    const predict={
-      lable:chatResponse["prediction"]["label"],
-      score:chatResponse["prediction"]["score"]
+    const predict = {
+      lable: chatResponse["prediction"]["label"],
+      score: chatResponse["prediction"]["score"],
+    };
+
+    if (NegativeFollowUpResponse.includes(predict.lable)) {
+      setNegative(negative + 5);
+    } else {
+      setPositive(positive + 5);
     }
-    
-    setPrediction(predict)
-    console.log("pred",prediction)
-    
   };
-
-  console.log(botResponse);
-  // const generateBotResponse = (message) => {
-
-  //   const res =  fetch(`https://cheerupchatbot.azurewebsites.net/api/getresponse?u=${user.name}`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: JSON.stringify({
-  //       "text":message
-  //     })
-  //   }).then(response => response.json())
-  //   .then(data => setData(data))
-  //   .catch(error => console.error(error));
-
-  //   console.log(data.body)
-  //   console.log(data)
-  //   return data.body
-  // };
   return (
-    <div className="container-fluid">
+    <div className="container-fluid mt-5">
       <div className="row">
         <div className="col-md-9 ">
-          <h1 className="text-center mb-4">Chat with us</h1>
+          <h1 className="text-center mb-4 mt-3">Chat with us</h1>
           <div className="card">
             <div className="card-body">
               {messages.map((message) => (
@@ -216,31 +211,49 @@ function ChatPage() {
             </button>
           </form>
         </div>
-        <div className="col-md-3 bg-light pt-3">
+        <div className="col-md-3 bg-light pt-3 mt-5">
           <center>
-          <h3 className="mb-3 text-danger">Emotions History</h3>
-          {
-            Object.keys(prediction).length !== 0
-             && (
-              <>
+            <h3 className="mb-3 text-danger">Previous Progress</h3>
+            <div className="row mb-5">
               <div className="row">
-            <div className="row">
-              <div className="col-1 ">h2</div>
-              <div className="col"><ProgressBar variant="success" now={positive} /></div>
-              <h6 className="text-danger">happy</h6>
+                <div className="col-1 ">h2</div>
+                <div className="col">
+                  <ProgressBar
+                    variant="success"
+                    now={CalculateUserPreviousNegative()}
+                  />
+                </div>
+                <h6 className="text-danger">happy</h6>
+              </div>
+              <div className="row mt-5">
+                <div className="col-1 ">h2</div>
+                <div className="col">
+                  <ProgressBar
+                    variant="success"
+                    now={CalculateUserPreviousPositive()}
+                  />
+                </div>
+                <h6 className="text-danger">sad</h6>
+              </div>
             </div>
-            <div className="row mt-5">
-              <div className="col-1 ">h2</div>
-              <div className="col"><ProgressBar variant="success" now={negative} /></div>
-              <h6 className="text-danger">sad</h6>
-              
+            <hr />
+            <h3 className="mb-3 text-success mt-5">Current Progress</h3>
+            <div className="row mb-5">
+              <div className="row">
+                <div className="col-1 ">h2</div>
+                <div className="col">
+                  <ProgressBar variant="success" now={positive} />
+                </div>
+                <h6 className="text-success">happy</h6>
+              </div>
+              <div className="row mt-5">
+                <div className="col-1 ">h2</div>
+                <div className="col">
+                  <ProgressBar variant="success" now={negative} />
+                </div>
+                <h6 className="text-success">sad</h6>
+              </div>
             </div>
-            
-          </div>  
-              </>
-            )
-          }
-            
           </center>
         </div>
       </div>

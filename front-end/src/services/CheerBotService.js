@@ -42,16 +42,6 @@ export async function GetBotResponse(username, message) {
 }
 
 export async function GetUsersQuestions(question_index) {
-  console.log("hellp");
-  //   return fetch(
-  //     `https://printhelloworldback.azurewebsites.net/api/questions?index=${question_index}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     }
-  //   ).then((response) => response.json());
   return await axios.get(
     `https://printhelloworldback.azurewebsites.net/api/questions?index=${question_index}`
   );
