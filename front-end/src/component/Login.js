@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 
 function LoginPage() {
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -34,8 +34,19 @@ function LoginPage() {
     );
     switch (response.status) {
       case 200:
-        setUser(username);
+        const res = await fetch(
+          `https://printhelloworldback.azurewebsites.net/api/status?u=${username}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        let body = await res.json();
+        setUser({name: username, progress: body.progress, question: body.q_index});
         console.log("Login successfully!");
+        console.log(user);
         break;
       case 401:
         setPassword("");

@@ -1,5 +1,9 @@
 import { useState } from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../App";
+
 function ChatPage() {
+  const { user } = useContext(UserContext);
   const [messages, setMessages] = useState([
     { id: 1, sender: "bot", text: "Hi there! How can I assist you today?" },
   ]);

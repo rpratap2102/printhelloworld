@@ -17,15 +17,15 @@ function Header() {
         <Container>
           <Navbar.Brand href="/">Your Buddy</Navbar.Brand>
 
-          {user && (
+          {user.name && (
             <div className="d-flex">
-              <p className="m-2 text-lg text-light">{user}</p>
+              <p className="m-2 text-lg text-light">{user.name}</p>
               <Link to="/login">
                 <Button onClick={Logout}>LogOut</Button>
               </Link>
             </div>
           )}
-          {user == null && (
+          {user.name == null && (
             <Link to="/login">
               <Button>SIGN IN</Button>
             </Link>
