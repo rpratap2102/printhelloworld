@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { redirect } from "react-router-dom";
 import { UserContext } from "../App";
 import { CheckCircleOutlined } from "@ant-design/icons";
 
@@ -55,6 +55,7 @@ function LoginPage() {
         } else {
           setUser({ name: username, progress: [], question: 0 });
         }
+        redirect("/");
         console.log("Login successfully!");
         break;
       case 401:
