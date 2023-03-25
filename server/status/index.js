@@ -7,44 +7,62 @@ const key =
 const client = new CosmosClient({ endpoint, key });
 
 const databaseId = "userDB";
-const containerId = "credentials";
+const containerId = "progress";
 
 const database = client.database(databaseId);
 const container = database.container(containerId);
 module.exports = async function (context, req) {
   let responseData = "";
   let statCode = 200;
+  let querySpec = {
+    query: `SELECT * from credentials c WHERE c.userName ='${req.query.u}'`,
+  };
+  let exist = false;
+  let data = {};
+  const { resources: items } = await container.items
+    .query(querySpec)
+    .fetchAll();
+  if (items.length > 0) {
+    exist = true;
+    data = items[0];
+  }
   if (req.method == "GET") {
     try {
-      let querySpec = {
-        query: `SELECT * from credentials c WHERE c.userName ='${req.query.u}'`,
-      };
-      const { resources: items } = await container.items
-        .query(querySpec)
-        .fetchAll();
-      let passwordObj = items[0];
-      let password = passwordObj.password;
-
-      statCode = password == req.query.p ? 200 : 401;
+      if (exist) {
+        responseData = items[0];
+      } else statCode = 204;
     } catch (error) {
-      statCode;
+      statCode = 500;
     }
   } else {
-    let user = {
-      userName: req.query.u,
-      password: req.query.p,
-    };
+    if (exist) {
+      (data.userName = req.query.u),
+        (data.q_index = req.body.qi),
+        (data.progress = items[0].progress);
+    } else {
+      data = {
+        userName: req.query.u,
+        q_index: req.body.qi,
+        progress: [],
+      };
+    }
+    data.progress.push({
+      question: req.body.qi,
+      response: req.body.r,
+      emotion: req.body.e,
+    });
     try {
-      const { resource: createItem } = await container.items.create(user);
-
+      const { resource: createItem } = exist
+        ? await container.item(items[0].id).replace(data)
+        : await container.items.create(data);
       responseData = {
-        message: `User created with username ${user.userName}`,
+        message: `Record updated for  ${data.userName}`,
       };
       statCode = 201;
     } catch (error) {
       if (error.body?.code == "Conflict") {
         responseData = {
-          message: `User Already Exist with username ${user.userName}`,
+          message: `User Already Exist with username ${data.userName}`,
         };
         statCode = 409;
       } else {
