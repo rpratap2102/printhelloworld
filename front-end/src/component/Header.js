@@ -62,7 +62,7 @@ function Header() {
                   <Link to="/" className="nav-text">
                     ChatBot
                   </Link>
-                  <Link to="/login" className="nav-text">
+                  <Link to="/login" onClick={Logout} className="nav-text">
                     Logout
                   </Link>
                 </>
