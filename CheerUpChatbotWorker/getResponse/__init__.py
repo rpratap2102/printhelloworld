@@ -78,8 +78,8 @@ def response_prediction(message):
         logging.info(r.status_code)
         body = r.json() 
         pred = body[0][0]
-        if(pred['label'] == 'neutral'):
-            pred = body[0][1]
+        # if(pred['label'] == 'neutral'):
+        #     pred = body[0][1]
         logging.info(pred)
         return{"body": pred, 'success': True}
     else :
@@ -110,7 +110,7 @@ def check_all_messages(message, predicted, question_index):
         'action':''
     }
     
-    if question_index >= len(questions):
+    if question_index > len(questions):
         body['res'] = byeResponse
         return {'body': body, 'update_index': False}
     if question_index == 0:
