@@ -80,7 +80,7 @@ body {
 }
 
 #home-section {
-  background: url(../public/site_images/Picture.jpg);
+  background: url(../public/site_images/home.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
