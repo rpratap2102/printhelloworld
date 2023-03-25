@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export async function GetBotResponse(username, message) {
   console.log(username);
   let chatBotReply = {
@@ -28,7 +26,7 @@ export async function GetBotResponse(username, message) {
   );
   let data = await res.json();
   console.log(data);
-  if (res.status == 200) {
+  if (res.status === 200) {
     chatBotReply["res"] = data["body"]["res"];
     chatBotReply["sentiment"] = data["body"]["sentiment"];
     chatBotReply["question"] = data["body"]["question"];
@@ -41,8 +39,17 @@ export async function GetBotResponse(username, message) {
   return chatBotReply;
 }
 
-export async function GetUsersQuestions(question_index) {
-  return await axios.get(
-    `https://printhelloworldback.azurewebsites.net/api/questions?index=${question_index}`
+export async function GetUsersQuestions() {
+  let res = await fetch(
+    `https://printhelloworldback.azurewebsites.net/api/questions`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
   );
+  let data = await res.json();
+  console.log(data);
+  return data;
 }

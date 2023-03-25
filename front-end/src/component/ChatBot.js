@@ -46,7 +46,7 @@ function ChatPage() {
   const [botResponse, setBotResponse] = useState({});
   const [negative, setNegative] = useState(0);
   const [positive, setPositive] = useState(0);
-
+  const [endChat, setEndChat] = useState(false);
   useEffect(() => {
     console.log("effect useEffect");
     console.log(user);
@@ -54,7 +54,7 @@ function ChatPage() {
       return redirect("/login");
     }
 
-    if (user.question === 0) {
+    if (user.question === 0 && user.progress.length === 0) {
       setMessages([
         {
           id: 1,
@@ -64,31 +64,92 @@ function ChatPage() {
       ]);
     } else {
       (async () => {
-        console.log("hello");
-        const res = await GetUsersQuestions(user.question);
-        const question = res.data[0].question;
-
-        const msgs = [
-          {
+        let cur_question = user.question - 1;
+        const qns = await GetUsersQuestions();
+        let msgs = [];
+        if (cur_question === -1) {
+          msgs.push({
             id: 1,
             sender: "bot",
-            text: question,
+            text: "Hi there,\nI’m hello world bot, a personalized chatbot curated to understand human emotions and cheer them up. I am here to listen and would try to make you feel better.\n In case, you want a friendly talk and want to laugh out loud, I can share some of my favorite memes and jokes.",
+          });
+          msgs.push({
+            id: 2,
+            sender: "bot",
+            text: "Sorry I did not got your name last time. What's your name.",
             followup: "",
             action: "",
-          },
-          {
+          });
+        } else if (cur_question === 0) {
+          msgs.push({
+            id: 1,
+            sender: "bot",
+            text: "Welcome again, Lets Continue.",
+            followup: "",
+            action: "",
+          });
+          msgs.push({
+            id: 2,
+            sender: "bot",
+            text: qns[cur_question + 1].question,
+            followup: "",
+            action: "",
+          });
+        } else if (cur_question + 1 === qns.length - 1) {
+          msgs.push({
+            id: 1,
+            sender: "bot",
+            text: qns[cur_question].question,
+            followup: "",
+            action: "",
+          });
+          msgs.push({
             id: 2,
             sender: "user",
             text: user.progress.slice(-1)[0].response,
-          },
-          {
-            id: 3,
-            sender: "bot",
-            text: "Lets continue where we left off!! - question need to be added",
             followup: "",
             action: "",
-          },
-        ];
+          });
+          msgs.push({
+            id: 3,
+            sender: "bot",
+            text: "Hope you liked out chatting with me for now i can only support you for this long only. Please reach out the the team for further assistance and also refer your emotion history graphs ",
+            followup: "",
+            action: "",
+          });
+          setEndChat(true);
+        } else {
+          msgs.push({
+            id: 1,
+            sender: "bot",
+            text: qns[cur_question].question,
+            followup: "",
+            action: "",
+          });
+          console.log(qns[cur_question].question);
+          msgs.push({
+            id: 2,
+            sender: "user",
+            text: user.progress.slice(-1)[0].response,
+            followup: "",
+            action: "",
+          });
+          msgs.push({
+            id: 3,
+            sender: "bot",
+            text: "Lets start from where we left",
+            followup: "",
+            action: "",
+          });
+          msgs.push({
+            id: 4,
+            sender: "bot",
+            text: qns[cur_question + 1].question,
+            followup: "",
+            action: "",
+          });
+        }
+        console.log(msgs);
         setMessages(msgs);
       })();
     }
@@ -99,8 +160,11 @@ function ChatPage() {
     user.progress.forEach((element) => {
       if (NegativeFollowUpResponse.includes(element.emotion.label)) {
         prevNegative += 5;
+        console.log(prevNegative)
       }
+      console.log(element.emotion.label)
     });
+   
     return prevNegative;
   };
 
@@ -111,6 +175,7 @@ function ChatPage() {
         prevPositive += 5;
       }
     });
+    console.log(prevPositive)
     return prevPositive;
   };
 
