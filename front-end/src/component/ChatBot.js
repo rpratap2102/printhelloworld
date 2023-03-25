@@ -4,6 +4,7 @@ import { UserContext } from "../App";
 
 function ChatPage() {
   const { user } = useContext(UserContext);
+  const [data, setData] = useState([]);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     console.log("effect useEffect");
@@ -77,16 +78,24 @@ function ChatPage() {
   };
 
   const generateBotResponse = (message) => {
-    if (message.toLowerCase().includes("hello")) {
-      return "Hello there!";
-    } else if (message.toLowerCase().includes("how are you")) {
-      return "I am doing well, thank you for asking.";
-    } else if (message.toLowerCase().includes("kaisa chal rha he bhai")) {
-      return "Abe sab shi chal rha tu bta q sad he be sale";
-    } else {
-      return "I am sorry, I do not understand. Can you please rephrase your question?";
-    }
+
+    const res =  fetch(`https://cheerupchatbot.azurewebsites.net/api/getresponse?u=${user.name}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "text":message
+      })
+    }).then(response => response.json())
+    .then(data => setData(data))
+    .catch(error => console.error(error));
+    
+    console.log(data.body)
+    console.log(data)
+    return data.body
   };
+
 
   return (
     <div className="container-fluid">
