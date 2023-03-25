@@ -94,6 +94,7 @@ def check_all_messages(message, predicted, question_index):
         highest_prob_list[bot_response] = message_probability(message, list_of_words, single_response, required_words)
 
     byeResponse = 'See you Again! I am hoping I was able to make your day cheerfull. Thankyou! '
+    binaryMessage = 'Please do respond in binary instead of this. :P '
     # Responses -------------------------------------------------------------------------------------------------------
     response('Hello!', ['hello', 'hi', 'hey', 'sup', 'heyo'], single_response=True)
     response(byeResponse, 
@@ -109,30 +110,34 @@ def check_all_messages(message, predicted, question_index):
         'action':''
     }
     
-    
     if question_index >= len(questions):
         body['res'] = byeResponse
-        return body
+        return {'body': body, 'update_index': False}
     if question_index == 0:
         body['res'] = best_match
         body['question'] = "Lets get started with your name then."
-        return body
+        return {'body': body, 'update_index': False}
     
     if highest_prob_list[best_match] < 1 :
-        if len(message) != 0 and question_index > 0:
+        if len(message) < 2 and question_index > 1 :
+            body['res'] = binaryMessage
+            body['followup'] ='Could you please answer the question in a manner so i could analyze'
+            body['question'] =  questions[question_index]['question']
+            return {'body': body, 'update_index': False}
+        else:
             if predicted in PositiveFollowUpResponse:
                 body['followup'] = questions[question_index-1]['positive']['followup']
                 body['action'] =  questions[question_index-1]['positive']['action']
-                body['question'] =  questions[question_index]['question']
             else:
                 body['followup'] = questions[question_index-1]['negative']['followup']
                 body['action'] = questions[question_index-1]['negative']['action']
-                body['question'] =  questions[question_index]['question']
-            return body
+            body['question'] =  questions[question_index]['question']    
+            return {'body': body, 'update_index': True}
     else :
         body['res'] = best_match
-        return body
-    return unknown()
+        if best_match == 'Hello!':
+            body['followup'] ='Could you please answer the question in a manner so i could analyze'
+        return {'body': body, 'update_index': False}
 
 # update the progress of user
 def setting_progress(userName, input, emotion, index):
@@ -182,18 +187,21 @@ def get_response(user_input, userName):
         update = setting_progress(userName, user_input, prediction['body'], index)
         if update['code'] != 200:
             return {'success': False, 'message': 'unable to update progress'}
-        response = {'body': 'Lets get started with your name then.', 'prediction': prediction['body'], 'index': index, 'success': True }
+        body = check_all_messages(split_message, prediction['body']['label'], 0 )
+        response = {'body': body['body'], 'prediction': prediction['body'], 'index': index, 'success': True }
         return response
     else:
-        return {'success': False, 'message': 'unable to fetch progress'} 
+        return {'success': False, 'message': 'unable to fetch progress'}
     index = index + 1
     logging.info(f"un : {userName}, ui : {user_input}, p : {prediction}, i : {index}")
-    if index < len(questions):
+    body = check_all_messages(split_message, prediction['body']['label'], index )
+    if index < len(questions) and body['update_index'] == True:
         update = setting_progress(userName, user_input, prediction['body'], index)
         if update['code'] != 200:
             return {'success': False, 'message': 'unable to update progress'}
-    body = check_all_messages(split_message, prediction['body']['label'], index - 1 )
-    response = {'body': body, 'prediction': prediction['body'], 'index': index, 'success': True }
+    else :
+        logging.info("not updating the database")
+    response = {'body': body['body'], 'prediction': prediction['body'], 'index': index, 'success': True }
     return response
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
