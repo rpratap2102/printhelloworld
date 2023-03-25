@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/244daa31-6500-47dd-adb8-b6e44e111b10/resourceGroups/202303_Hackathon_27/providers/Microsoft.Web/sites/printhelloworldfrontend",
+    "appService.deploySubpath": "build"
+}
