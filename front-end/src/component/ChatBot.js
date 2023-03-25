@@ -160,22 +160,21 @@ function ChatPage() {
     user.progress.forEach((element) => {
       if (NegativeFollowUpResponse.includes(element.emotion.label)) {
         prevNegative += 5;
-        console.log(prevNegative)
       }
-      console.log(element.emotion.label)
     });
-   
+
     return prevNegative;
   };
 
   const CalculateUserPreviousPositive = () => {
     let prevPositive = 0;
+
     user.progress.forEach((element) => {
-      if (NegativeFollowUpResponse.includes(element.emotion.label)) {
+      if (PositiveFollowUpResponse.includes(element.emotion.label)) {
         prevPositive += 5;
       }
     });
-    console.log(prevPositive)
+
     return prevPositive;
   };
 
@@ -188,22 +187,81 @@ function ChatPage() {
     if (message.trim() === "") {
       return;
     }
-    const newId = messages.length + 1;
-    let msgs = [...messages, { id: newId, sender: "user", text: message }];
 
-    setMessages(msgs);
+    let msgs = [
+      ...messages,
+      { id: messages.length + 1, sender: "user", text: message },
+    ];
     const chatResponse = await GetBotResponse(user.name, message);
     Promise.resolve(chatResponse);
     console.log(chatResponse);
     const botRes = {
-      id: newId + 1,
+      id: messages.length + 1,
       sender: "bot",
       text: chatResponse.res,
       question: chatResponse.question,
       followup: chatResponse.followup,
       action: chatResponse.action,
     };
+    if (botRes.text !== "") {
+      msgs.push({
+        id: botRes.id + 1,
+        sender: "bot",
+        text: botRes.text,
+      });
+    }
 
+    if (botRes.followup !== "") {
+      msgs.push({
+        id: botRes.id + 2,
+        sender: "bot",
+        text: botRes.followup,
+      });
+    }
+    if (botRes.action !== "") {
+      msgs.push({
+        id: botRes.id + 3,
+        sender: "bot",
+        text: botRes.action,
+      });
+    }
+    if (botRes.question !== "") {
+      msgs.push({
+        id: botRes.id + 4,
+        sender: "bot",
+        text: botRes.question,
+      });
+    }
+    setMessages(msgs);
+
+    // const newId = messages.length + 1;
+    // let msgs = [...messages, { id: newId, sender: "user", text: message }];
+
+    // setMessages(msgs);
+    // console.log(messages);
+    // const chatResponse = await GetBotResponse(user.name, message);
+    // Promise.resolve(chatResponse);
+    // console.log(chatResponse);
+    // const botRes = {
+    //   id: newId + 1,
+    //   sender: "bot",
+    //   text: "test " + chatResponse.res,
+    //   question: chatResponse.question,
+    //   followup: chatResponse.followup,
+    //   action: chatResponse.action,
+    // };
+    // setMessages([
+    //   ...messages,
+    //   {
+    //     id: newId + 1,
+    //     sender: "bot",
+    //     text: "test " + chatResponse.res,
+    //     question: chatResponse.question,
+    //     followup: chatResponse.followup,
+    //     action: chatResponse.action,
+    //   },
+    // ]);
+    console.log(messages);
     setBotResponse(botRes);
     const predict = {
       lable: chatResponse["prediction"]["label"],
@@ -222,26 +280,28 @@ function ChatPage() {
         <div className="col-md-9 ">
           <h1 className="text-center mb-4 mt-3">Chat with us</h1>
           <div className="card">
-            <div className="card-body">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`row mb-2 ${
-                    message.sender === "bot"
-                      ? "justify-content-start"
-                      : "justify-content-end"
-                  }`}
-                >
-                  <div
-                    className={`col-8 p-2 rounded ${
-                      message.sender === "bot" ? "bg-light" : "bg-primary"
-                    } text-${message.sender === "bot" ? "dark" : "white"}`}
-                  >
-                    {message.text}
-                  </div>
-                </div>
-              ))}
-              {botResponse && (
+            {messages && (
+              <>
+                <div className="card-body">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`row mb-2 ${
+                        message.sender === "bot"
+                          ? "justify-content-start"
+                          : "justify-content-end"
+                      }`}
+                    >
+                      <div
+                        className={`col-8 p-2 rounded ${
+                          message.sender === "bot" ? "bg-light" : "bg-primary"
+                        } text-${message.sender === "bot" ? "dark" : "white"}`}
+                      >
+                        {message.text}
+                      </div>
+                    </div>
+                  ))}
+                  {/* {botResponse && (
                 <>
                   {botResponse["followup"] != "" && (
                     <div className="card">
@@ -259,8 +319,10 @@ function ChatPage() {
                     </div>
                   )}
                 </>
-              )}
-            </div>
+              )} */}
+                </div>
+              </>
+            )}
           </div>
           <form className="mt-4" onSubmit={handleSendMessage}>
             <div className="form-group">
@@ -320,7 +382,10 @@ function ChatPage() {
                   />
                 </div>
                 <div className="col">
-                  <ProgressBar variant="success" now={positive} />
+                  <ProgressBar
+                    variant="success"
+                    now={CalculateUserPreviousNegative()}
+                  />
                 </div>
                 <h6 className="text-success">happy</h6>
               </div>
@@ -331,7 +396,10 @@ function ChatPage() {
                   />
                 </div>
                 <div className="col">
-                  <ProgressBar variant="success" now={negative} />
+                  <ProgressBar
+                    variant="success"
+                    now={CalculateUserPreviousPositive()}
+                  />
                 </div>
                 <h6 className="text-success">sad</h6>
               </div>
