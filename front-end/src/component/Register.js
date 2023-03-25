@@ -1,14 +1,14 @@
-import React, { useContext, useState } from "react";
-import { UserContext } from "../App";
-import { redirect } from "react-router-dom";
-import { Form, Button, Container } from "react-bootstrap";
+import React, { useState } from "react";
 import { CheckCircleOutlined } from "@ant-design/icons";
+import LoadingSpinner from "./Spinner";
+import { useNavigate} from "react-router-dom";
 
 function RegisterForm() {
-  const { user, setUser } = useContext(UserContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
@@ -17,9 +17,19 @@ function RegisterForm() {
     setPassword(event.target.value);
   };
 
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPassword(event.target.value);
+  };
   const handleSubmit = async (event) => {
-    event.preventDefault();
-
+    if (username === "" || password === "" || confirmPassword === "") {
+      alert("Enter the complete registration detail");
+      return;
+    }
+     if (password !== confirmPassword){
+      alert("Password and confirm password does not match")
+      return
+    }
+    setIsLoading(true)
     const response = await fetch(
       `https://printhelloworldback.azurewebsites.net/api/user?u=${username}&p=${password}`,
       {
@@ -31,64 +41,15 @@ function RegisterForm() {
     );
 
     if (response.ok) {
-      const res = await fetch(
-        `https://printhelloworldback.azurewebsites.net/api/status?u=${username}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (res.status === 200) {
-        let body = await res.json();
-        setUser({
-          name: username,
-          progress: body.progress,
-          question: body.q_index,
-        });
-      } else {
-        setUser({ name: username, progress: [], question: 0 });
-      }
-      redirect("/");
+      navigate('/')
       console.log("User registered successfully!");
     } else {
       console.error("Error registering user");
     }
+    setIsLoading(false)
   };
 
   return (
-    // <Container>
-    //   <h3 className="text-center item-center">Register</h3>
-    //   <Form onSubmit={handleSubmit}>
-    //     <Form.Group controlId="formBasicEmail">
-    //       <Form.Label>Username</Form.Label>
-    //       <Form.Control
-    //         className="mb-3"
-    //         type="text"
-    //         placeholder="Enter username"
-    //         value={username}
-    //         onChange={handleUsernameChange}
-    //       />
-    //     </Form.Group>
-
-    //     <Form.Group controlId="formBasicPassword">
-    //       <Form.Label>Password</Form.Label>
-    //       <Form.Control
-    //         className="mb-3"
-    //         type="password"
-    //         placeholder="Password"
-    //         value={password}
-    //         onChange={handlePasswordChange}
-    //       />
-    //     </Form.Group>
-
-    //     <Button variant="primary" type="submit">
-    //       Submit
-    //     </Button>
-    //   </Form>
-    // </Container>
     <header id="home-section">
       <div className="dark-overlay">
         <div className="home-inner container">
@@ -139,8 +100,11 @@ function RegisterForm() {
               <div className="card bg-primary text-center card-form">
                 <div className="card-body">
                   <h3 className="mt-2">Sign Up Today</h3>
-                  <p>Please fill out this form to register</p>
+                  <p>Please fill out the registration form</p>
                   <form>
+                  {isLoading ? (
+                      <LoadingSpinner />
+                    ) : (<div>
                     <div className="form-group">
                       <input
                         type="text"
@@ -164,13 +128,17 @@ function RegisterForm() {
                         type="password"
                         className="form-control form-control-lg mt-3 mb-3"
                         placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={handleConfirmPasswordChange}
                       />
                     </div>
+                    </div>)}
                     <input
                       type="submit"
                       value="Submit"
                       className="btn btn-outline-light btn-block mt-4 mb-2"
                       onClick={handleSubmit}
+                      disabled= {isLoading}
                     />
                   </form>
                 </div>
