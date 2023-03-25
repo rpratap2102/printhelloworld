@@ -3,13 +3,19 @@ import React, { useContext } from "react";
 import { UserContext } from "../App";
 import { redirect } from "react-router-dom";
 import { GetUsersQuestions, GetBotResponse } from "../services/CheerBotService";
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 function ChatPage() {
+  const NegativeFollowUpResponse = ['sadness','annoyance','disappointment','fear','disapproval','disgust','anger','embarrassment','grief','remorse','realization','nervousness','confusion','neutral']
+  const PositiveFollowUpResponse = ['approval','caring','amusement','curiosity','optimism','desire','admiration','relief','joy','excitement','gratitude','love','surprise','pride']
   const { user } = useContext(UserContext);
   const [data, setData] = useState([]);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [botResponse, setBotResponse] = useState({});
+  const [negative, setNegative] = useState(0);
+  const [positive, setPositive] = useState(0);
+  const [prediction,setPrediction] =useState({})
 
   useEffect(() => {
     console.log("effect useEffect");
@@ -56,6 +62,7 @@ function ChatPage() {
         setMessages(msgs);
       })();
     }
+    
   }, [user]);
 
   // } else {
@@ -96,6 +103,8 @@ function ChatPage() {
     setMessage(event.target.value);
   };
 
+  
+
   const handleSendMessage = async (event) => {
     event.preventDefault();
     if (message.trim() === "") {
@@ -117,6 +126,14 @@ function ChatPage() {
     };
     console.log(botRes);
     setBotResponse(botRes);
+    const predict={
+      lable:chatResponse["prediction"]["label"],
+      score:chatResponse["prediction"]["score"]
+    }
+    
+    setPrediction(predict)
+    console.log("pred",prediction)
+    
   };
 
   console.log(botResponse);
@@ -201,7 +218,29 @@ function ChatPage() {
         </div>
         <div className="col-md-3 bg-light pt-3">
           <center>
-            <h3 className="mb-3">Emotions History</h3>
+          <h3 className="mb-3 text-danger">Emotions History</h3>
+          {
+            Object.keys(prediction).length !== 0
+             && (
+              <>
+              <div className="row">
+            <div className="row">
+              <div className="col-1 ">h2</div>
+              <div className="col"><ProgressBar variant="success" now={positive} /></div>
+              <h6 className="text-danger">happy</h6>
+            </div>
+            <div className="row mt-5">
+              <div className="col-1 ">h2</div>
+              <div className="col"><ProgressBar variant="success" now={negative} /></div>
+              <h6 className="text-danger">sad</h6>
+              
+            </div>
+            
+          </div>  
+              </>
+            )
+          }
+            
           </center>
         </div>
       </div>
