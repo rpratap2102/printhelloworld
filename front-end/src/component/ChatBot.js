@@ -47,6 +47,8 @@ function ChatPage() {
   const [negative, setNegative] = useState(0);
   const [positive, setPositive] = useState(0);
   const [endChat, setEndChat] = useState(false);
+  const [predictions, setpredictions] = useState([]);
+
   useEffect(() => {
     console.log("effect useEffect");
     console.log(user);
@@ -95,7 +97,7 @@ function ChatPage() {
             followup: "",
             action: "",
           });
-        } else if (cur_question + 1 === qns.length - 1) {
+        } else if (cur_question + 1 === qns.length) {
           msgs.push({
             id: 1,
             sender: "bot",
@@ -261,12 +263,13 @@ function ChatPage() {
     //     action: chatResponse.action,
     //   },
     // ]);
-    console.log(messages);
     setBotResponse(botRes);
     const predict = {
       label: chatResponse["prediction"]["label"],
       score: chatResponse["prediction"]["score"],
     };
+
+    setpredictions([...predictions, predict]);
 
     if (NegativeFollowUpResponse.includes(predict.label)) {
       console.log("negative  ");
@@ -282,7 +285,7 @@ function ChatPage() {
   return (
     <div className="container-fluid mt-5">
       <div className="row">
-        <div className="col-md-9 ">
+        <div className="col-md-8 ">
           <h1 className="text-center mb-4 mt-3">Chat with us</h1>
           <div className="card">
             {messages && (
@@ -344,39 +347,35 @@ function ChatPage() {
             </button>
           </form>
         </div>
-        <div className="col-md-3 bg-light pt-3 mt-5">
+        <div className="col-md-4 bg-light pt-3 mt-5">
           <center>
-            <h3 className="mb-3 text-danger">Previous Progress</h3>
-            {/* <div className="row mb-5">
-              <div className="row">
-                <div className="col-1 ">
-                  <SmileOutlined
-                    style={{ color: "#d63384", fontSize: "1.2em" }}
-                  />
-                </div>
-                <div className="col">
-                  <ProgressBar
-                    variant="success"
-                    now={CalculateUserPreviousNegative()}
-                  />
-                </div>
-                <h6 className="text-danger">happy</h6>
-              </div>
-              <div className="row mt-5">
-                <div className="col-1 ">
-                  <FrownOutlined
-                    style={{ color: "#d63384", fontSize: "1.2em" }}
-                  />
-                </div>
-                <div className="col">
-                  <ProgressBar
-                    variant="success"
-                    now={CalculateUserPreviousPositive() + positive}
-                  />
-                </div>
-                <h6 className="text-danger">sad</h6>
-              </div>
-            </div> */}
+            <h3 className="mb-3 text-dark">Previous Progress</h3>
+            <p className="lead text-dark">
+              Predicted By Tensfor flow Human emotion Train Model
+            </p>
+            <div className="row mb-5 px-4">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Predicted Emotion</th>
+                    <th scope="col">Confidence Level</th>
+                  </tr>
+                </thead>
+                {predictions && (
+                  <tbody>
+                    {predictions.map((p) => {
+                      console.log(p);
+                      <tr key={p.index}>
+                        <th scope="row">{p.index}</th>
+                        <td>{p.label}</td>
+                        <td>{p.score}</td>
+                      </tr>;
+                    })}
+                  </tbody>
+                )}
+              </table>
+            </div>
             <hr />
             <h3 className="mb-3 text-success mt-5">Current Progress</h3>
             <div className="row mb-5">
