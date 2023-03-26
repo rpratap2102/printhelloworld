@@ -115,7 +115,7 @@ def check_message_belongs_to_questions(msg):
 
 def response_prediction(message):
     r = requests.post(
-        "https://api-inference.huggingface.co/models/arpanghoshal/EmoRoBERTa",
+        "https://api-inference.huggingface.co/models/rohitLearning/emotionModel",
         json={"inputs": message},
         headers={"Authorization": "Bearer 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"},
     )
