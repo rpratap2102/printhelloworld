@@ -14,24 +14,6 @@ function Header() {
   };
   return (
     <>
-      {/* <Navbar bg="dark" variant="dark">
-        <Container>
-          <Navbar.Brand href="/">Your Buddy</Navbar.Brand>
-          {user.name && (
-            <div className="d-flex">
-              <p className="m-2 text-lg text-light">{user.name}</p>
-              <Link to="/login">
-                <Button onClick={Logout}>LogOut</Button>
-              </Link>
-            </div>
-          )}
-          {user.name == null && (
-            <Link to="/login">
-              <Button>SIGN IN</Button>
-            </Link>
-          )}
-        </Container>
-      </Navbar> */}
       <nav
         className="navbar navbar-expand-sm bg-dark navbar-dark fixed-top"
         id="main-nav"
