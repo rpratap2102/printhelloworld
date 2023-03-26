@@ -5,8 +5,6 @@
 <div align="center">
   <a href="https://printhelloworldfrontend.azurewebsites.net/">
 
-
-
   <h3 align="center">print("Hello world")</h3>
 </a>
   <p align="center">
@@ -51,14 +49,26 @@ Here's how it works:
 
 - Using a tensor flow to train a model from predicting emotion from personals response.
 - Uses 28 different human emotions are used as features to train the model.
-- Data set used is GoEmotion dataset provided by Google. 
+- Data set used is GoEmotion dataset provided by Google.
   - The GoEmotions dataset contains 58k carefully curated Reddit comments labeled for 27 emotion categories or Neutral. The raw data is included as well as the smaller, simplified version of the dataset with predefined train/val/test splits.
   - [Location on hugging face](https://huggingface.co/datasets/go_emotions)
   - [Location on Google repository](https://github.com/google-research/google-research/tree/master/goemotions)
 - Predicted each emotion on a single sentence by generating confidence level and
   picked the high probability interval one to it's closest.
- - _```Emotions = ["admiration",1"amusement","anger","annoyance","approval","caring","confusion","curiosity","desire","disappointment","disapproval",disgust","embarrassment","excitement","fear","gratitude","grief","joy","love","nervousness","optimism","pride","realization","relief","remorse","sadness","surprise","neutral",]```
+- \_`Emotions = ["admiration",1"amusement","anger","annoyance","approval","caring","confusion","curiosity","desire","disappointment","disapproval",disgust","embarrassment","excitement","fear","gratitude","grief","joy","love","nervousness","optimism","pride","realization","relief","remorse","sadness","surprise","neutral",]`
 
+## Folder Structure
+
+1. CheerUpChatbotWorker
+
+   - getReponse: This is an azure function that is responsible to get user's text and predict sentiments
+
+2. emotion
+
+   - getEmotions: This is an azure function where we train model.
+
+3. font-end: Putting all the UI components built in react.
+4. Server: Putting Api code.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -83,20 +93,21 @@ The entire application is on the cloud which gives the benefit of scalability an
 
     To access the app Navigate to [hello world](https://printhelloworldfrontend.azurewebsites.net/)
     Its free registrations (till the sponsorship resource lasts :D)
-    Sign in using newly created credentials
-    
+    If you are new you could register yourself here. [](./screenshots/registeration_page.png)
+    Sign in using newly created credentials[](./screenshots/login_page.png)
+    You can integrate with AI Cheerup chatbot.[](./screenshots/chatbot_page.png)
 
 ### Prerequisites
 
     If just want to access the app no prerequisite required
     But to run it locally check out the project.
 
-
 ### Installation
+
 - Front end : easiest to build
-    -   run ```npm start``` to run local 
-    -   run ```npm run build`` to create a deployable build 
-        -   do a azure web deployment for the generated build on the resource (202303_Hackathon_27/printhelloworldfrontend)
+  - run `npm start` to run local
+  - run ``npm run build` to create a deployable build
+    - do a azure web deployment for the generated build on the resource (202303_Hackathon_27/printhelloworldfrontend)
 - Back end : consists of azure functions
   - Javascript functions could be executed locally with the help of azure functions extenion resource (202303_Hackathon_27/printhelloworldfrontend)
     - user : create authenticate user
@@ -107,11 +118,9 @@ The entire application is on the cloud which gives the benefit of scalability an
   - Database
     cosmose Db :https://printhelloworld.documents.azure.com:443/
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>    
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
-
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -121,7 +130,7 @@ The entire application is on the cloud which gives the benefit of scalability an
 
 - [x] Create a model for predicting emotions
 - [x] Host the model
-- [x] Create the front end  
+- [x] Create the front end
 - [x] Host the web services
 - [x] Track the progress of user
 - [ ] Improvements that could be done
@@ -137,6 +146,10 @@ The entire application is on the cloud which gives the benefit of scalability an
 ## Contact
 
 Rohit pratap - rohit.pratap@nagarro.com
+Jay Jha - jay.jha@nagarro.com
+Pankaj Koche - pankaj.koche@nagarro.com​
+Piyush Arora​ - piyush.arora01@nagarro.com​
+Rupal Jain​ - rupal.jain@nagarro.com​
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -144,4 +157,11 @@ Rohit pratap - rohit.pratap@nagarro.com
 
 ## Acknowledgments
 
-Had a lot of help from google. 
+Had a lot of help from these resources.
+
+Model : https://huggingface.co/rohitLearning/emotionModel
+
+https://arxiv.org/abs/1907.11692
+
+GoEmotions:  Dataset labelled 58000 Reddit comments with 28 emotions
+https://huggingface.co/datasets/go_emotions
