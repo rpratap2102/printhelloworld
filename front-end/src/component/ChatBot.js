@@ -205,7 +205,7 @@ function ChatPage() {
     ];
     const chatResponse = await GetBotResponse(user.name, message);
     const qns = await GetUsersQuestions();
-    if (chatResponse.index + 1 >= qns.length) setEndChat();
+
     Promise.resolve(chatResponse);
     console.log(chatResponse);
     const botRes = {
@@ -244,6 +244,16 @@ function ChatPage() {
         text: botRes.question,
       });
     }
+
+    if (chatResponse.index + 1 >= qns.length) {
+      setEndChat(true);
+      msgs.push({
+        id: botRes.id + 5,
+        sender: "bot",
+        text: "Hope you liked out chatting with me for now i can only support you for this long only. Please reach out the the team for further assistance and also refer your emotion history graphs ",
+      });
+    }
+
     const predict = {
       label: chatResponse["prediction"]["label"],
       score: chatResponse["prediction"]["score"],
@@ -308,13 +318,15 @@ function ChatPage() {
                     disabled={endChat}
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="btn btn-primary mt-3"
-                  disabled={endChat}
-                >
-                  Send
-                </button>
+                <div className="d-grid gap-2 col-6 mx-auto text-center">
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-lg mt-3"
+                    disabled={endChat}
+                  >
+                    Send
+                  </button>
+                </div>
               </form>
             </>
           )}
@@ -369,16 +381,13 @@ function ChatPage() {
                 </thead>
                 {predictions && (
                   <tbody>
-                    {predictions.map(
-                      (p, index) =>
-                        index < 8 && (
-                          <tr key={index}>
-                            <th scope="row">{index + 1}</th>
-                            <td>{p.label}</td>
-                            <td>{p.score}</td>
-                          </tr>
-                        )
-                    )}
+                    {predictions.map((p, index) => (
+                      <tr key={index}>
+                        <th scope="row">{index + 1}</th>
+                        <td>{p.label}</td>
+                        <td>{p.score}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 )}
               </table>
