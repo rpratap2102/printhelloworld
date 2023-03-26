@@ -7,13 +7,14 @@
 
   <h3 align="center">print("Hello world")</h3>
 </a>
+    <h3 align="center">(https://printhelloworldfrontend.azurewebsites.net/)</h3>
   <p align="center">
     Repository to host the code for a cool chatbot that could understand emotions in your replies and respond accordingly.
   </p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
-<details>
+
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -33,13 +34,9 @@
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
-</details>
-
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
-
-[![Product Home screen][product-screenshot]](https://printhelloworldfrontend.azurewebsites.net/)
 
 Aassess a person's emotional state using conversational approach. This is a fully functional chatbot that is ready to use for getting your emotional states up.
 
@@ -91,11 +88,17 @@ The entire application is on the cloud which gives the benefit of scalability an
 
 ## Getting Started
 
-    To access the app Navigate to [hello world](https://printhelloworldfrontend.azurewebsites.net/)
-    Its free registrations (till the sponsorship resource lasts :D)
-    If you are new you could register yourself here. [](./screenshots/registeration_page.png)
-    Sign in using newly created credentials[](./screenshots/login_page.png)
-    You can integrate with AI Cheerup chatbot.[](./screenshots/chatbot_page.png)
+To access the app Navigate to [hello world](https://printhelloworldfrontend.azurewebsites.net/)
+Its free registrations (till the sponsorship resource lasts :D)
+
+If you are new you could register yourself here.
+ - ![registration](./screenshots/registeration_page.png)
+
+Sign in using newly created credentials
+ - ![login](./screenshots/login_page.png)
+
+You can integrate with AI Cheerup chatbot.
+ - ![Conversation](./screenshots/chatbot_page.png)
 
 ### Prerequisites
 
@@ -145,11 +148,11 @@ The entire application is on the cloud which gives the benefit of scalability an
 
 ## Contact
 
-Rohit pratap - rohit.pratap@nagarro.com
-Jay Jha - jay.jha@nagarro.com
-Pankaj Koche - pankaj.koche@nagarro.com​
-Piyush Arora​ - piyush.arora01@nagarro.com​
-Rupal Jain​ - rupal.jain@nagarro.com​
+- Rohit pratap - rohit.pratap@nagarro.com
+- Jay Jha - jay.jha@nagarro.com
+- Pankaj Koche - pankaj.koche@nagarro.com​
+- Piyush Arora​ - piyush.arora01@nagarro.com​
+- Rupal Jain​ - rupal.jain@nagarro.com​
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
