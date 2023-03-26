@@ -10,6 +10,7 @@ export async function GetBotResponse(username, message) {
       label: "",
       score: "",
     },
+    index: "",
   };
 
   const res = await fetch(
@@ -34,6 +35,7 @@ export async function GetBotResponse(username, message) {
     chatBotReply["action"] = data["body"]["action"];
     chatBotReply["prediction"]["label"] = data["prediction"]["label"];
     chatBotReply["prediction"]["score"] = data["prediction"]["score"];
+    chatBotReply["index"] = data["index"];
   }
 
   return chatBotReply;

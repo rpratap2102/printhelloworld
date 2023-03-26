@@ -40,10 +40,8 @@ function ChatPage() {
     "pride",
   ];
   const { user } = useContext(UserContext);
-  const [data, setData] = useState([]);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
-  const [botResponse, setBotResponse] = useState({});
   const [negative, setNegative] = useState(0);
   const [positive, setPositive] = useState(0);
   const [endChat, setEndChat] = useState(false);
@@ -97,7 +95,7 @@ function ChatPage() {
             followup: "",
             action: "",
           });
-        } else if (cur_question + 1 === qns.length) {
+        } else if (cur_question + 1 >= qns.length) {
           msgs.push({
             id: 1,
             sender: "bot",
@@ -155,7 +153,9 @@ function ChatPage() {
         setMessages(msgs);
       })();
     }
-  }, [user]);
+    const pred = user.progress.map((p) => p.emotion);
+    setpredictions([...predictions, ...pred]);
+  }, []);
 
   const CalculateUserPreviousNegative = () => {
     let prevNegative = 0;
@@ -181,6 +181,7 @@ function ChatPage() {
   };
 
   const handleNewMessageChange = (event) => {
+    event.preventDefault();
     setMessage(event.target.value);
   };
 
@@ -195,10 +196,12 @@ function ChatPage() {
       { id: messages.length + 1, sender: "user", text: message },
     ];
     const chatResponse = await GetBotResponse(user.name, message);
+    const qns = await GetUsersQuestions();
+    if (chatResponse.index + 1 >= qns.length) setEndChat();
     Promise.resolve(chatResponse);
     console.log(chatResponse);
     const botRes = {
-      id: messages.length + 1,
+      id: messages.length + 2,
       sender: "bot",
       text: chatResponse.res,
       question: chatResponse.question,
@@ -212,7 +215,6 @@ function ChatPage() {
         text: botRes.text,
       });
     }
-
     if (botRes.followup !== "") {
       msgs.push({
         id: botRes.id + 2,
@@ -234,42 +236,12 @@ function ChatPage() {
         text: botRes.question,
       });
     }
-    setMessages(msgs);
-
-    // const newId = messages.length + 1;
-    // let msgs = [...messages, { id: newId, sender: "user", text: message }];
-
-    // setMessages(msgs);
-    // console.log(messages);
-    // const chatResponse = await GetBotResponse(user.name, message);
-    // Promise.resolve(chatResponse);
-    // console.log(chatResponse);
-    // const botRes = {
-    //   id: newId + 1,
-    //   sender: "bot",
-    //   text: "test " + chatResponse.res,
-    //   question: chatResponse.question,
-    //   followup: chatResponse.followup,
-    //   action: chatResponse.action,
-    // };
-    // setMessages([
-    //   ...messages,
-    //   {
-    //     id: newId + 1,
-    //     sender: "bot",
-    //     text: "test " + chatResponse.res,
-    //     question: chatResponse.question,
-    //     followup: chatResponse.followup,
-    //     action: chatResponse.action,
-    //   },
-    // ]);
-    setBotResponse(botRes);
     const predict = {
       label: chatResponse["prediction"]["label"],
       score: chatResponse["prediction"]["score"],
     };
-
     setpredictions([...predictions, predict]);
+    setMessages(msgs);
 
     if (NegativeFollowUpResponse.includes(predict.label)) {
       console.log("negative  ");
@@ -309,25 +281,6 @@ function ChatPage() {
                       </div>
                     </div>
                   ))}
-                  {/* {botResponse && (
-                <>
-                  {botResponse["followup"] != "" && (
-                    <div className="card">
-                      <div className="card-body">{botResponse["followup"]}</div>
-                    </div>
-                  )}
-                  {botResponse["action"] != "" && (
-                    <div className="card">
-                      <div className="card-body">{botResponse["action"]}</div>
-                    </div>
-                  )}
-                  {botResponse["question"] != "" && (
-                    <div className="card">
-                      <div className="card-body">{botResponse["question"]}</div>
-                    </div>
-                  )}
-                </>
-              )} */}
                 </div>
               </>
             )}
@@ -364,14 +317,13 @@ function ChatPage() {
                 </thead>
                 {predictions && (
                   <tbody>
-                    {predictions.map((p) => {
-                      console.log(p);
+                    {predictions.map((p) => (
                       <tr key={p.index}>
                         <th scope="row">{p.index}</th>
                         <td>{p.label}</td>
                         <td>{p.score}</td>
-                      </tr>;
-                    })}
+                      </tr>
+                    ))}
                   </tbody>
                 )}
               </table>
