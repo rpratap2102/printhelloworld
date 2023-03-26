@@ -317,8 +317,8 @@ function ChatPage() {
                 </thead>
                 {predictions && (
                   <tbody>
-                    {predictions.map((p) => (
-                      <tr key={p.index}>
+                    {predictions.map((p, index) => (
+                      <tr key={index}>
                         <th scope="row">{p.index}</th>
                         <td>{p.label}</td>
                         <td>{p.score}</td>
