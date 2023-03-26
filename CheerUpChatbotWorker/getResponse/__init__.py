@@ -186,6 +186,8 @@ def check_all_messages(message, predicted, question_index):
                 body["action"] = questions[question_index - 1]["negative"]["action"]
             if question_index != len(questions):
                 body["question"] = questions[question_index]["question"]
+            else :
+                body["question"] = byeResponse
             return {"body": body, "update_index": True}
     else:
         body["res"] = best_match
