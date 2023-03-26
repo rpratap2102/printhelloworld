@@ -170,12 +170,13 @@ def check_all_messages(message, predicted, question_index):
         return {"body": body, "update_index": False}
 
     if highest_prob_list[best_match] < 1:
-        if len(message) < 2 and question_index > 1:
+        if len(message) < 2 and question_index > 1 :
             body["res"] = binaryMessage
             body[
                 "followup"
             ] = "Could you please answer the question in a manner so i could analyze"
-            body["question"] = questions[question_index]["question"]
+            if question_index < len(questions):
+                body["question"] = questions[question_index]["question"]
             return {"body": body, "update_index": False}
         else:
             if predicted in PositiveFollowUpResponse:

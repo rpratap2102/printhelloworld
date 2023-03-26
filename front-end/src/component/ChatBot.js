@@ -5,6 +5,7 @@ import { redirect } from "react-router-dom";
 import { GetUsersQuestions, GetBotResponse } from "../services/CheerBotService";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { SmileOutlined, FrownOutlined } from "@ant-design/icons";
+import LoadingSpinner from "./Spinner";
 
 function ChatPage() {
   const NegativeFollowUpResponse = [
@@ -46,6 +47,7 @@ function ChatPage() {
   const [positive, setPositive] = useState(0);
   const [endChat, setEndChat] = useState(false);
   const [predictions, setpredictions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("effect useEffect");
@@ -185,7 +187,13 @@ function ChatPage() {
     setMessage(event.target.value);
   };
 
-  const handleSendMessage = async (event) => {
+  const handleSendMessage = (event) => {
+    setLoading(true);
+    generateMessage(event)
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false));
+  };
+  const generateMessage = async (event) => {
     event.preventDefault();
     if (message.trim() === "") {
       return;
@@ -285,29 +293,73 @@ function ChatPage() {
               </>
             )}
           </div>
-          <form className="mt-4" onSubmit={handleSendMessage}>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Type your message"
-                value={message}
-                onChange={handleNewMessageChange}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary mt-3">
-              Send
-            </button>
-          </form>
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <form className="mt-4" onSubmit={handleSendMessage}>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Type your message"
+                    value={message}
+                    onChange={handleNewMessageChange}
+                    disabled={endChat}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-3"
+                  disabled={endChat}
+                >
+                  Send
+                </button>
+              </form>
+            </>
+          )}
         </div>
         <div className="col-md-4 bg-light pt-3 mt-5">
           <center>
-            <h3 className="mb-3 text-dark">Previous Progress</h3>
+            <h3 className="mb-3 text-success mt-5">Tracking</h3>
+            <div className="row mb-5">
+              <div className="row mt-5">
+                <div className="col-1 ">
+                  <SmileOutlined
+                    style={{ color: "#198754", fontSize: "1.2em" }}
+                  />
+                </div>
+                <div className="col">
+                  <ProgressBar
+                    variant="success"
+                    style={{ height: "3em" }}
+                    now={CalculateUserPreviousPositive() + positive}
+                  />
+                </div>
+                <h6 className="text-success">Positive Sentiments</h6>
+              </div>
+              <div className="row">
+                <div className="col-1 ">
+                  <FrownOutlined
+                    style={{ color: "#ffa500", fontSize: "1.2em" }}
+                  />
+                </div>
+                <div className="col">
+                  <ProgressBar
+                    variant="warning"
+                    style={{ height: "3em" }}
+                    now={CalculateUserPreviousNegative() + negative}
+                  />
+                </div>
+                <h6 className="text-success">Negative Sentiments</h6>
+              </div>
+            </div>
+            <h3 className="mb-3 text-dark">Analysis</h3>
             <p className="lead text-dark">
-              Predicted By Tensfor flow Human emotion Train Model
+              Predicted By Tensor flow Human emotion Train Model
             </p>
-            <div className="row mb-5 px-4">
-              <table className="table">
+            <div style={{ overflow: "scroll", height: "25em" }}>
+              <table className="table" height="10px">
                 <thead>
                   <tr>
                     <th scope="col">Index</th>
@@ -317,49 +369,21 @@ function ChatPage() {
                 </thead>
                 {predictions && (
                   <tbody>
-                    {predictions.map((p, index) => (
-                      <tr key={index}>
-                        <th scope="row">{p.index}</th>
-                        <td>{p.label}</td>
-                        <td>{p.score}</td>
-                      </tr>
-                    ))}
+                    {predictions.map(
+                      (p, index) =>
+                        index < 8 && (
+                          <tr key={index}>
+                            <th scope="row">{index + 1}</th>
+                            <td>{p.label}</td>
+                            <td>{p.score}</td>
+                          </tr>
+                        )
+                    )}
                   </tbody>
                 )}
               </table>
             </div>
             <hr />
-            <h3 className="mb-3 text-success mt-5">Current Progress</h3>
-            <div className="row mb-5">
-              <div className="row">
-                <div className="col-1 ">
-                  <SmileOutlined
-                    style={{ color: "#198754", fontSize: "1.2em" }}
-                  />
-                </div>
-                <div className="col">
-                  <ProgressBar
-                    variant="success"
-                    now={CalculateUserPreviousNegative() + negative}
-                  />
-                </div>
-                <h6 className="text-success">Negative Sentiments</h6>
-              </div>
-              <div className="row mt-5">
-                <div className="col-1 ">
-                  <FrownOutlined
-                    style={{ color: "#198754", fontSize: "1.2em" }}
-                  />
-                </div>
-                <div className="col">
-                  <ProgressBar
-                    variant="success"
-                    now={CalculateUserPreviousPositive() + positive}
-                  />
-                </div>
-                <h6 className="text-success">Positive Sentiments</h6>
-              </div>
-            </div>
           </center>
         </div>
       </div>
