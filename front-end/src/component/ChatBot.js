@@ -22,7 +22,6 @@ function ChatPage() {
     "realization",
     "nervousness",
     "confusion",
-    "neutral",
   ];
   const PositiveFollowUpResponse = [
     "approval",
@@ -39,6 +38,7 @@ function ChatPage() {
     "love",
     "surprise",
     "pride",
+    "neutral",
   ];
   const { user } = useContext(UserContext);
   const [messages, setMessages] = useState([]);
